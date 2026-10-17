@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply text-mario-ink antialiased;
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  background-color: #5c94fc;
+  /* 雲：ピクセル風の白い塊をタイル状に配置 */
+  background-image:
+    radial-gradient(ellipse 28px 16px at 60px 90px, #fff 98%, transparent),
+    radial-gradient(ellipse 40px 22px at 90px 84px, #fff 98%, transparent),
+    radial-gradient(ellipse 28px 16px at 120px 90px, #fff 98%, transparent);
+  background-size: 520px 320px;
+  background-attachment: fixed;
+}
+
+@layer components {
+  .pixel-panel {
+    @apply border-4 border-mario-ink bg-white shadow-block;
+  }
+
+  .pixel-btn {
+    @apply inline-flex items-center justify-center gap-1.5 border-4 border-mario-ink bg-white px-4 py-2 text-sm font-bold text-mario-ink shadow-block-sm transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .pixel-btn-coin {
+    @apply bg-mario-coin hover:bg-yellow-300;
+  }
+
+  .pixel-btn-pipe {
+    @apply bg-mario-pipe text-white hover:bg-mario-pipeDark;
+  }
+
+  .pixel-btn-danger {
+    @apply bg-mario-brick text-white hover:bg-red-700;
+  }
+
+  .pixel-input {
+    @apply w-full border-4 border-mario-ink bg-white px-3 py-2 text-sm focus:bg-yellow-50 focus:outline-none;
+  }
+
+  .pixel-title {
+    font-family: "Courier New", Courier, monospace;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 3px 3px 0 #101010;
+    letter-spacing: 0.08em;
+  }
+
+  .pixel-label {
+    @apply text-sm font-bold;
+  }
+}
+
+/* レンガ模様の背景（ヘッダー・モーダル見出し用） */
+.brick-bg {
+  background-color: #c84c0c;
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.2) 2px, transparent 2px),
+    linear-gradient(rgba(0, 0, 0, 0.2) 2px, transparent 2px);
+  background-size: 48px 24px;
+}
+
+/* ---- ブロック破壊エフェクト（完了時）。全体で約1秒 ---- */
+.fx-block-break {
+  animation: block-break 1s ease-out forwards;
+}
+.fx-mario {
+  opacity: 0;
+  animation: mario-jump 1s ease-out forwards;
+}
+.fx-brick {
+  opacity: 0;
+  animation: brick-fly 0.6s ease-in 0.4s forwards;
+}
+.fx-coin {
+  opacity: 0;
+  animation: coin-pop 0.6s ease-out 0.4s forwards;
+}
+
+@keyframes mario-jump {
+  0% { transform: translateY(8px); opacity: 0; }
+  15% { transform: translateY(0); opacity: 1; }
+  40% { transform: translateY(-26px); opacity: 1; } /* ブロックの下に頭をぶつける */
+  70% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+@keyframes block-break {
+  0%, 38% { transform: translateY(0); opacity: 1; }
+  44% { transform: translateY(-10px); opacity: 1; }
+  50%, 100% { transform: translateY(-10px) scale(0.9); opacity: 0; }
+}
+
+@keyframes brick-fly {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  40% { transform: translate(calc(var(--dx) * 0.6), var(--dy)) rotate(180deg); opacity: 1; }
+  100% { transform: translate(var(--dx), 140px) rotate(540deg); opacity: 0; }
+}
+
+@keyframes coin-pop {
+  0% { transform: translateY(0) scaleX(1); opacity: 1; }
+  50% { transform: translateY(-44px) scaleX(0.3); opacity: 1; }
+  100% { transform: translateY(-24px) scaleX(1); opacity: 0; }
+}
+
+/* ---- 背景：景色のスクロールと、右へ走るマリオ ---- */
+.fx-scenery {
+  animation: scenery-scroll 60s linear infinite;
+}
+.fx-mario-run {
+  animation: mario-run-across 14s linear infinite;
+}
+.fx-frame-a {
+  animation: run-frame-a 0.28s steps(1, end) infinite;
+}
+.fx-frame-b {
+  opacity: 0;
+  animation: run-frame-b 0.28s steps(1, end) infinite;
+}
+
+@keyframes scenery-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-2400px); } /* Scenery.tsx の HALF_WIDTH と同じ */
+}
+
+@keyframes mario-run-across {
+  from { transform: translateX(-60px); }
+  to { transform: translateX(100vw); }
+}
+
+@keyframes run-frame-a {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes run-frame-b {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* ---- 24時間以内の課題：赤く脈打つ ---- */
+.fx-urgent {
+  animation: urgent-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes urgent-pulse {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.2) saturate(1.2); }
+}
+
+/* 動きを減らす設定では常時アニメーションを止める */
+@media (prefers-reduced-motion: reduce) {
+  .fx-scenery,
+  .fx-mario-run,
+  .fx-frame-a,
+  .fx-frame-b,
+  .fx-urgent {
+    animation: none;
+  }
+}
